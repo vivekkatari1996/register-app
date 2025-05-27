@@ -11,11 +11,10 @@ pipeline {
             steps {
                 cleanWs()
             }
-
         }
         stage("Checkout from SCM") {
             steps {
-                git branch:'main', credentialsId:'github', url:'https://github.com/vivekkatari1996/register-app.git'
+                git branch: 'main', credentialsId: 'github', url: 'https://github.com/vivekkatari1996/register-app.git'
             }
         }
         stage("Build Application") {
@@ -31,10 +30,11 @@ pipeline {
         stage("SonarQube Analysis") {
             steps {
                 script {
-                    withSonarQubeEnv(credentialsId:'jenkins-sonarqube-token'){
+                    withSonarQubeEnv(credentialsId: 'jenkins-sonarqube-token') {
                         sh "mvn sonar:sonar"
                     }
                 }
             }
         }
     }
+}
