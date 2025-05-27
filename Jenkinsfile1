@@ -2,39 +2,61 @@ pipeline {
     agent {
         label 'Jenkins-Agent'
     }
+
     tools {
         jdk 'Java17'
         maven 'Maven3'
     }
+
     stages {
-        stage("Cleanup Workspace") {
+        stage('Cleanup Workspace') {
             steps {
+                echo "Cleaning up previous workspace..."
                 cleanWs()
             }
         }
-        stage("Checkout from SCM") {
+
+        stage('Checkout from SCM') {
             steps {
-                git branch: 'main', credentialsId: 'github', url: 'https://github.com/vivekkatari1996/register-app.git'
+                echo "Checking out source code from GitHub..."
+                git branch: 'main',
+                    credentialsId: 'github',
+                    url: 'https://github.com/vivekkatari1996/register-app.git'
             }
         }
-        stage("Build Application") {
+
+        stage('Build Application') {
             steps {
-                sh "mvn clean package"
+                echo "Building the application using Maven..."
+                sh 'mvn clean package'
             }
         }
-        stage("Test Application") {
+
+        stage('Test Application') {
             steps {
-                sh "mvn test"
+                echo "Running unit tests..."
+                sh 'mvn test'
             }
         }
-        stage("SonarQube Analysis") {
+
+        stage('SonarQube Analysis') {
             steps {
+                echo "Running SonarQube static code analysis..."
                 script {
                     withSonarQubeEnv(credentialsId: 'jenkins-sonarqube-token') {
-                        sh "mvn sonar:sonar"
+                        sh 'mvn sonar:sonar'
                     }
                 }
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline executed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check logs above.'
         }
     }
 }
